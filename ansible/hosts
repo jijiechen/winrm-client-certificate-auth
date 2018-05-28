@@ -1,0 +1,13 @@
+
+
+
+
+[server]
+myserver
+
+[server:vars]
+ansible_connection= winrm
+ansible_winrm_cert_pem= cert.pem
+ansible_winrm_cert_key_pem= cert.key.pem
+ansible_winrm_transport= certificate
+ansible_winrm_server_cert_validation= ignore

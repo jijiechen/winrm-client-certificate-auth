@@ -1,0 +1,56 @@
+
+
+$cretificate_path = $args[0]
+$credential = $args[1]
+$disable_kerberos = ( $args[2] -eq 'DisablePasswordAuthentication' )
+
+
+# Import public key to Root and TrustedPeople store
+
+$cretificate = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Certificate2
+$cretificate.Import( $cretificate_path )
+
+$local_machine = [System.Security.Cryptography.X509Certificates.StoreLocation]::LocalMachine
+$store_names = ( [System.Security.Cryptography.X509Certificates.StoreName]::Root, 
+                 [System.Security.Cryptography.X509Certificates.StoreName]::TrustedPeople )
+
+$store_names | ForEach-Object {
+    $store = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Store -ArgumentList $_, $local_machine
+    $store.Open("MaxAllowed")
+    $store.Add($cretificate)
+    $store.Close()
+}
+
+
+
+
+
+# Map to an account
+
+$sanExt = $cretificate.Extensions | Where-Object { $_.Oid.FriendlyName -match "Subject Alternative Name" }
+$sanObj = New-Object -ComObject X509Enrollment.CX509ExtensionAlternativeNames
+$sanObj.InitializeDecode( 1, [System.Convert]::ToBase64String( $sanExt.RawData ) )
+
+$san = $sanObj.AlternativeNames[0].strValue
+
+
+New-Item -Path WSMan:\localhost\ClientCertificate `
+    -Subject $san `
+    -URI * `
+    -Issuer $cretificate.Thumbprint `
+    -Credential $credential `
+    -Force
+
+
+
+
+
+# Disable Kerberos authentication (Username & Pasword)
+
+if ( $disable_kerberos ) {
+    Set-Item -Path WSMan:\localhost\Service\Auth\Kerberos -Value $false
+}
+
+
+
+

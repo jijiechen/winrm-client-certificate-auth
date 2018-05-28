@@ -1,0 +1,10 @@
+---
+
+- name: Hello World
+  hosts: server
+  tasks:
+    - win_command: whoami
+    - name: "Execute PowerShell"
+      win_command: powershell.exe -
+      args:
+        stdin: echo Hello PowerShell > C:\Users\Administrator\Desktop\hello.txt
