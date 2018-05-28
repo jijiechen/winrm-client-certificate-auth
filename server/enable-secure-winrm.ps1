@@ -1,19 +1,19 @@
 
-$hostname = $args[0]
-$cert_thumbprint = $args[1]  # Supports pre-installed certificate
-
+$hostname = $args[0]                    # HTTPS endpoint hostname
+$stored_cert_thumbprint = $args[1]      # Supports pre-installed certificate
+$keep_http = ( $args[2] -eq 'KeepHttpEndpoint' )
 
 
 Enable-PSRemoting -SkipNetworkProfileCheck -Force
 winrm quickconfig
 
 
-if($cert_thumbprint -eq $null) {
+if($installed_cert_thumbprint -eq $null) {
     $cert = New-SelfSignedCertificate -DnsName $hostname -CertStoreLocation cert:\LocalMachine\My
-    $cert_thumbprint = $cert.ThumbPrint
+    $installed_cert_thumbprint = $cert.ThumbPrint
 }
 
-winrm create winrm/config/Listener?Address=*+Transport=HTTPS "@{Hostname=`"$hostname`";CertificateThumbprint=`"$($cert.ThumbPrint)`"}"
+winrm create winrm/config/Listener?Address=*+Transport=HTTPS "@{Hostname=`"$hostname`";CertificateThumbprint=`"$installed_cert_thumbprint`"}"
 Set-Item -Path WSMan:\localhost\Service\Auth\Certificate -Value $true
 
 New-NetFirewallRule -DisplayName 'Windows Remote Management (HTTPS-In)' `
@@ -21,4 +21,9 @@ New-NetFirewallRule -DisplayName 'Windows Remote Management (HTTPS-In)' `
     -Direction Inbound -Action Allow `
     -Profile Any -LocalPort 5986 -Protocol TCP -RemoteAddress Any
 
-winrm delete winrm/config/Listener?Address=*+Transport=HTTP
+if (-not $keep_http){
+    winrm delete winrm/config/Listener?Address=*+Transport=HTTP
+}
+
+
+

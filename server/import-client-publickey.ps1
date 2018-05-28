@@ -1,8 +1,7 @@
 
-
-$cretificate_path = $args[0]
-$credential = $args[1]
-$disable_kerberos = ( $args[2] -eq 'DisablePasswordAuthentication' )
+$cretificate_path = $args[0]        # Client certificate public key path (*.cer, *.pem)
+$credential = $args[1]              # Server login credential
+$keep_kerberos = ( $args[2] -eq 'KeepPasswordAuthentication' )
 
 
 # Import public key to Root and TrustedPeople store
@@ -47,7 +46,7 @@ New-Item -Path WSMan:\localhost\ClientCertificate `
 
 # Disable Kerberos authentication (Username & Pasword)
 
-if ( $disable_kerberos ) {
+if ( -not $keep_kerberos ) {
     Set-Item -Path WSMan:\localhost\Service\Auth\Kerberos -Value $false
 }
 
