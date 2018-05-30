@@ -1,18 +1,35 @@
 
+# You may source this script into your powershell profile:
+#  . .\connect.ps1 <thumbprint>
+
+$private_key_cert_thumbprint = $args[0]
+
+
+
 
 Set-Item -Path WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
 
-$options = New-PSSessionOption -SkipCACheck # -SkipCNCheck
+# Enter-PSSession -ComputerName <computer_name> -CertificateThumbprint $private_key_cert_thumbprint -UseSsl -SessionOption (New-PSSessionOption -SkipCACheck -SkipCNCheck)
 
-# Todo: 
-# 1. Fetch the public key convenient way?
-# 2. Store the public key at somewhere?
-# 3. So that we can provide to new servers?
 
-# 4. When authenticating, list convenient?
+Function Connect-RemotePS ($hostname) {
+    Enter-PSSession -ComputerName $hostname -CertificateThumbprint $private_key_cert_thumbprint -UseSsl -SessionOption (New-PSSessionOption -SkipCACheck -SkipCNCheck)
+}
 
-# Enter-PSSession -UseSsl -SessionOption $options
-# -ComputerName 47.93.242.24 -CertificateThumbprint 519E6A9055B41E4A9C76DFFB239A9A50E0E591EC 
+
+Function Show-MyPublicKey () {
+    $cert = Get-ChildItem Cert:\CurrentUser\My | Where-Object { $_.Thumbprint -eq $private_key_cert_thumbprint }
+
+    if( -not ($cert -eq $null) ){
+        $public_key_bytes = $cert.Export( [System.Security.Cryptography.X509Certificates.X509ContentType]::Cert )
+        $public_key = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Certificate2
+        $public_key.Import([byte[]]$public_key_bytes)
+
+        Write-Host "-----BEGIN CERTIFICATE-----"
+        Write-Host $(( [System.Convert]::ToBase64String($public_key.RawData) -Replace ".{64}", "$&`n" ).Trim())
+        Write-Host "-----END CERTIFICATE-----"
+    }
+}
 
 
 
