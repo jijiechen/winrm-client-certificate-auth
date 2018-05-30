@@ -4,9 +4,13 @@ $stored_cert_thumbprint = $args[1]      # Supports pre-installed certificate
 $keep_http = ( $args[2] -eq 'KeepHttpEndpoint' )
 
 
+
 Enable-PSRemoting -SkipNetworkProfileCheck -Force
 winrm quickconfig -q
 
+if($hostname -eq $null) {
+    $hostname = $env:ComputerName
+}
 
 if($installed_cert_thumbprint -eq $null) {
     $cert = New-SelfSignedCertificate -DnsName $hostname -CertStoreLocation cert:\LocalMachine\My
