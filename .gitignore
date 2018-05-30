@@ -5,3 +5,6 @@ cert.pfx
 cert.key
 cert.pem
 cert.key.pem
+
+*.retry
+.DS_Store

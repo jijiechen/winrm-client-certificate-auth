@@ -5,7 +5,7 @@ $keep_http = ( $args[2] -eq 'KeepHttpEndpoint' )
 
 
 Enable-PSRemoting -SkipNetworkProfileCheck -Force
-winrm quickconfig
+winrm quickconfig -q
 
 
 if($installed_cert_thumbprint -eq $null) {
