@@ -38,7 +38,7 @@ EOF
 export OPENSSL_CONF=conf
 
 openssl req -x509 -newkey rsa:2048 -nodes -sha1 -keyout private/cert.key -out certs/cert.pem -days 3650 -outform PEM -extensions v3_req_client -subj \
-"/C=CN/ST=Beijing/L=Dongcheng/emailAddress=jijie.chen@outlook.com/organizationName=DevOps/CN=$USER_NAME"
+"/C=CN/ST=Beijing/L=Dongcheng/O=DevOps/CN=$USER_NAME"
 openssl pkcs12 -export -in certs/cert.pem -inkey private/cert.key -out $PFX_FILE -password pass:$PFX_PASSWORD
 
 rm conf

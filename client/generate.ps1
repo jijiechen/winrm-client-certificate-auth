@@ -6,28 +6,28 @@
 
 # set the name of the local user that will have the key mapped
 $username = $args[0]
-$output_path = `pwd`
+$output_path = $(pwd).Path
 
 # instead of generating a file, the cert will be added to the personal
 # LocalComputer folder in the certificate store
 $cert = New-SelfSignedCertificate -Type Custom `
-    -Subject "/C=CN/ST=Beijing/L=Dongcheng/emailAddress=jijie.chen@outlook.com/organizationName=DevOps/CN=$username" `
+    -Subject "C=CN,ST=Beijing,L=Dongcheng,O=DevOps,CN=$username" `
     -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.2","2.5.29.17={text}upn=$username@localhost") `
     -KeyUsage DigitalSignature,KeyEncipherment `
     -KeyAlgorithm RSA `
     -KeyLength 2048
 
-# export the public key
-$pem_output = @()
-$pem_output += "-----BEGIN CERTIFICATE-----"
-$pem_output += [System.Convert]::ToBase64String($cert.RawData) -replace ".{64}", "$&`n"
-$pem_output += "-----END CERTIFICATE-----"
-[System.IO.File]::WriteAllLines("$output_path\cert.pem", $pem_output)
+[System.IO.File]::WriteAllBytes("$output_path\cert.pfx", $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx))
 
-# export the private key into a pem
-[System.IO.File]::WriteAllBytes("$output_path\cert.key.pem", $cert.Export(X509ContentType.Cert))
+Push-Location
 
-# export the private key into a pfx
-[System.IO.File]::WriteAllBytes("$output_path\cert.pfx", $cert.Export(X509ContentType.Pfx))
+$dir = Split-Path $MyInvocation.MyCommand.Path
+Set-Location $dir
 
+.\openssl\openssl.exe pkcs12 -in "$output_path\cert.pfx" -out "$output_path\cert.pem" -nokeys -password pass:
+.\openssl\openssl.exe pkcs12 -in "$output_path\cert.pfx" -out "$output_path\cert.key" -passin "pass:" -passout "pass:123456"
+.\openssl\openssl.exe rsa -in "$output_path\cert.key" -out "$output_path\cert.key.pem" -passin "pass:123456"
+rm "$output_path\cert.key"
+
+Pop-Location
 
