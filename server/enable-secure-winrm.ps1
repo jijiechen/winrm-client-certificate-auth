@@ -14,7 +14,7 @@ if($hostname -eq $null) {
 
 if($stored_cert_thumbprint -eq $null) {
     $cert = New-SelfsignedCertificateEx -Subject "CN=$hostname" -SAN $hostname `
-                -EKU "Server Authentication" -StoreLocation "LocalMachine" `
+                -EKU "1.3.6.1.5.5.7.3.1" -StoreLocation "LocalMachine" `
                 -KeyLength 2048 -NotAfter $([Datetime]::Now.AddYears(5))
 
     $stored_cert_thumbprint = $cert.ThumbPrint
