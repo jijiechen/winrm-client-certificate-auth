@@ -21,10 +21,13 @@ Function Init-SecureWinRM(){
     Write-Output $PublicKey > user.pub
 
 
+    Invoke-WebRequest -UseBasicParsing -OutFile New-SelfSignedCertificateEx.ps1 https://raw.githubusercontent.com/jijiechen/winrm-client-certificate-auth/master/server/New-SelfSignedCertificateEx.ps1
     Invoke-WebRequest -UseBasicParsing -OutFile enable-secure-winrm.ps1 https://raw.githubusercontent.com/jijiechen/winrm-client-certificate-auth/master/server/enable-secure-winrm.ps1
     Invoke-WebRequest -UseBasicParsing -OutFile import-client-publickey.ps1 https://raw.githubusercontent.com/jijiechen/winrm-client-certificate-auth/master/server/import-client-publickey.ps1
+    
 
     # Set-ExecutionPolicy -ExecutionPolicy ByPass
+    . .\New-SelfSignedCertificateEx.ps1
     .\enable-secure-winrm.ps1
 
     $credential = New-Object -TypeName PSCredential -ArgumentList $UserName, $(ConvertTo-SecureString $Password -AsPlainText -Force) 
