@@ -30,10 +30,9 @@ Function Connect-RemotePS () {
                     $key_data = $request.ServicePoint.Certificate.Export( [Security.Cryptography.X509Certificates.X509ContentType]::Cert )
 
                     $cert = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Certificate2
-                    $cert.Import( $key_data )
-                    
-                    $script_dir = Split-Path $MyInvocation.MyCommand.Path
-                    $trusted_file = "$script_dir\trusted-server-thumbprints"
+                    $cert.Import( $key_data )                    
+
+                    $trusted_file = "$home\winrm\trusted-server-thumbprints"
                     $trusted = @()
                     if(Test-Path $trusted_file){
                         $trusted = [System.IO.File]::ReadAllLines( $trusted_file )
@@ -47,6 +46,7 @@ Function Connect-RemotePS () {
                     Write-Host $cert.Thumbprint -ForegroundColor Yellow
                     $confirmation = Read-Host 'Do you want to trust this server? (Y/N)'
                     if ( ($confirmation -eq 'Y') -or ($confirmation -eq 'y') ) {
+                        [System.IO.Directory]::CreateDirectory("$home\winrm\")
                         Add-Content -Path $trusted_file -Value $cert.Thumbprint -ErrorAction SilentlyContinue
                         Return $true
                     }
