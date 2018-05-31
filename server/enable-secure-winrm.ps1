@@ -12,12 +12,17 @@ if($hostname -eq $null) {
     $hostname = $env:ComputerName
 }
 
-if($installed_cert_thumbprint -eq $null) {
-    $cert = New-SelfSignedCertificate -DnsName $hostname -CertStoreLocation cert:\LocalMachine\My
-    $installed_cert_thumbprint = $cert.ThumbPrint
+if($stored_cert_thumbprint -eq $null) {
+    $cert = New-SelfSignedCertificate -DnsName $hostname `
+                -CertStoreLocation Cert:\LocalMachine\My `
+                -KeyLength 2048 -NotAfter (Get-Date).AddYears(5)
+
+    $stored_cert_thumbprint = $cert.ThumbPrint
 }
 
-winrm create winrm/config/Listener?Address=*+Transport=HTTPS "@{Hostname=`"$hostname`";CertificateThumbprint=`"$installed_cert_thumbprint`"}"
+Write-Host "Configuring HTTPS endpoint for host '$hostname' using certificate thumbprint '$stored_cert_thumbprint'"
+
+winrm create winrm/config/Listener?Address=*+Transport=HTTPS "@{Hostname=`"$hostname`";CertificateThumbprint=`"$stored_cert_thumbprint`"}"
 Set-Item -Path WSMan:\localhost\Service\Auth\Certificate -Value $true
 
 New-NetFirewallRule -DisplayName 'Windows Remote Management (HTTPS-In)' `
