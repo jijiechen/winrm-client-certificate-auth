@@ -12,9 +12,22 @@ Set-Item -Path WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
 # Enter-PSSession -ComputerName <computer_name> -CertificateThumbprint $private_key_cert_thumbprint -UseSsl -SessionOption (New-PSSessionOption -SkipCACheck -SkipCNCheck)
 
 
-Function Connect-RemotePS ($hostname) {
-    Enter-PSSession -ComputerName $hostname -CertificateThumbprint $private_key_cert_thumbprint -UseSsl -SessionOption (New-PSSessionOption -SkipCACheck -SkipCNCheck)
-}
+Function Connect-RemotePS () {
+    Param (
+            [Parameter(Mandatory=$true, Position=0)]
+            [string] $hostname,
+            [Parameter(Mandatory=$false)]
+            [switch] $nocheck
+        )
+
+        if($nocheck){
+            $option = New-PSSessionOption -SkipCACheck -SkipCNCheck
+        }else{
+            $option = New-PSSessionOption 
+        }
+
+        Enter-PSSession -ComputerName $hostname -CertificateThumbprint $private_key_cert_thumbprint -UseSsl -SessionOption $option        
+    }
 
 
 Function Show-MyPublicKey () {
