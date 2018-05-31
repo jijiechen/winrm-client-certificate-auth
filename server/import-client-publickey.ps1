@@ -33,15 +33,13 @@ $sanObj.InitializeDecode( 1, [System.Convert]::ToBase64String( $sanExt.RawData )
 $san = $sanObj.AlternativeNames[0].strValue
 
 
+Invoke-Expression "winrm delete winrm/config/service/certmapping?URI=*+Issuer=$($cretificate.Thumbprint)+Subject=$san"  -ErrorAction SilentlyContinue
 New-Item -Path WSMan:\localhost\ClientCertificate `
     -Subject $san `
     -URI * `
     -Issuer $cretificate.Thumbprint `
     -Credential $credential `
     -Force
-
-
-
 
 
 # Disable Kerberos authentication (Username & Pasword)

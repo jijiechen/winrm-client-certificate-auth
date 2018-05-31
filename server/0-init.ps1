@@ -18,7 +18,7 @@ Function Init-SecureWinRM(){
     [System.IO.Directory]::CreateDirectory($path)
 
     Set-Location $path
-    Write-Host $PublicKey > user.pub
+    Write-Output $PublicKey > user.pub
 
 
     Invoke-WebRequest -UseBasicParsing -OutFile enable-secure-winrm.ps1 https://raw.githubusercontent.com/jijiechen/winrm-client-certificate-auth/master/server/enable-secure-winrm.ps1

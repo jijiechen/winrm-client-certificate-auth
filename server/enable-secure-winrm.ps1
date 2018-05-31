@@ -22,9 +22,11 @@ if($stored_cert_thumbprint -eq $null) {
 
 Write-Host "Configuring HTTPS endpoint for host '$hostname' using certificate thumbprint '$stored_cert_thumbprint'"
 
+Invoke-Expression "winrm delete winrm/config/listener?Transport=HTTPS+Address=*" -ErrorAction SilentlyContinue
 winrm create winrm/config/Listener?Address=*+Transport=HTTPS "@{Hostname=`"$hostname`";CertificateThumbprint=`"$stored_cert_thumbprint`"}"
 Set-Item -Path WSMan:\localhost\Service\Auth\Certificate -Value $true
 
+Remove-NetFirewallRule -DisplayName 'Windows Remote Management (HTTPS-In)' -ErrorAction SilentlyContinue
 New-NetFirewallRule -DisplayName 'Windows Remote Management (HTTPS-In)' `
     -Name 'Windows Remote Management (HTTPS-In)' `
     -Direction Inbound -Action Allow `
