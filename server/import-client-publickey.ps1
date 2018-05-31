@@ -26,7 +26,7 @@ $store_names | ForEach-Object {
 
 # Map to an account
 
-$sanExt = $cretificate.Extensions | Where-Object { $_.Oid.FriendlyName -match "Subject Alternative Name" }
+$sanExt = $cretificate.Extensions | Where-Object { $_.Oid.Value -eq "2.5.29.17" }
 $sanObj = New-Object -ComObject X509Enrollment.CX509ExtensionAlternativeNames
 $sanObj.InitializeDecode( 1, [System.Convert]::ToBase64String( $sanExt.RawData ) )
 
