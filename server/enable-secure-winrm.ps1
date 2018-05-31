@@ -14,8 +14,9 @@ if($hostname -eq $null) {
 
 if($stored_cert_thumbprint -eq $null) {
     $cert = New-SelfSignedCertificate -DnsName $hostname `
-                -CertStoreLocation Cert:\LocalMachine\My `
-                -KeyLength 2048 -NotAfter (Get-Date).AddYears(5)
+                -CertStoreLocation Cert:\LocalMachine\My
+                # Following arguments only work on Server 2016 and above...
+                # -KeyLength 2048 -NotAfter (Get-Date).AddYears(5)
 
     $stored_cert_thumbprint = $cert.ThumbPrint
 }

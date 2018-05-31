@@ -6,7 +6,9 @@ Scripts and tools in this repository help you easily setup a secure WinRM endpoi
 
 - Folder `client` contains tools for generating client certificates
 - Folder `server` contains tools for setting up server
-- Folder `Ansible` contains an example of connecting to certificate authentication enabled winrm hosts 
+- Folder `ansible` contains an example of connecting to certificate authentication enabled winrm hosts 
+
+Scripts in this repository run on Windows Server 2012 and above systems.
 
 **Warning: scripts in this repository configure Windows Servers to use self-signed certificates (instead of certificates from valid CAs) to secure HTTPS endpoints. A client may take its own risks to connect to these servers. Should you have any concern about security of your server or the connections, you should not use scripts in this repository.**
 
@@ -38,9 +40,9 @@ What it does:
 - Make a firewall exception for the secure WinRM port (5986)
 - Import the public key of client certificate onto server and map it to the given credential 
 
-It will also cleanup existing HTTPS endpoint, firewall rule and mapping so that this script is able to be executed and retried.
+It will also cleanup existing HTTPS endpoint, firewall rule and cert user mapping if there is so that this script is able to be executed and retried.
 
-Tip: the script will print thumbprint of generated server certificate. One can write it down and compare this value on connecting. 
+Tip: the script will print thumbprint of generated server certificate. You can write it down and compare this value on connecting. 
 
 
 ## Connect to a secure WinRM Windows Server

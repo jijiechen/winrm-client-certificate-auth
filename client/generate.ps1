@@ -1,4 +1,4 @@
-# This script supports Windows 8 / Windows Server 2012 and above
+# This script supports Windows 10 / Windows Server 2016 and above
 # For lower systems, please use  New-SelfSignedCertificateEx from https://gallery.technet.microsoft.com/scriptcenter/Self-signed-certificate-5920a7c6
 $username = $args[0]
 $outfile = $args[1]
