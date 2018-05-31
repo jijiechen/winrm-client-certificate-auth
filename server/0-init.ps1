@@ -27,8 +27,8 @@ Function Init-SecureWinRM(){
     # Set-ExecutionPolicy -ExecutionPolicy ByPass
     .\enable-secure-winrm.ps1
 
-    $credential = New-Object -TypeName PSCredential -ArgumentList $UserName, $(ConvertTo-SecureString $Password -AsPlainText -Force)
-    .\import-client-publickey.ps1 .\user.pub $credential
+    $credential = New-Object -TypeName PSCredential -ArgumentList $UserName, $(ConvertTo-SecureString $Password -AsPlainText -Force) 
+    .\import-client-publickey.ps1 "$path\user.pub" $credential
 
 
 
