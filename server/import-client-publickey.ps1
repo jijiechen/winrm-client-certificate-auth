@@ -1,13 +1,13 @@
 
-$cretificate_path = $args[0]        # Client certificate public key path (*.cer, *.pem)
+$certificate_path = $args[0]        # Client certificate public key path (*.cer, *.pem)
 $credential = $args[1]              # Server login credential
 $keep_kerberos = ( $args[2] -eq 'KeepPasswordAuthentication' )
 
 
 # Import public key to Root and TrustedPeople store
 
-$cretificate = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Certificate2
-$cretificate.Import( $cretificate_path )
+$certificate = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Certificate2
+$certificate.Import( $certificate_path )
 
 $local_machine = [System.Security.Cryptography.X509Certificates.StoreLocation]::LocalMachine
 $store_names = ( [System.Security.Cryptography.X509Certificates.StoreName]::Root, 
@@ -16,7 +16,7 @@ $store_names = ( [System.Security.Cryptography.X509Certificates.StoreName]::Root
 $store_names | ForEach-Object {
     $store = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Store -ArgumentList $_, $local_machine
     $store.Open("MaxAllowed")
-    $store.Add($cretificate)
+    $store.Add($certificate)
     $store.Close()
 }
 
@@ -26,18 +26,17 @@ $store_names | ForEach-Object {
 
 # Map to an account
 
-$sanExt = $cretificate.Extensions | Where-Object { $_.Oid.Value -eq "2.5.29.17" }
+$sanExt = $certificate.Extensions | Where-Object { $_.Oid.Value -eq "2.5.29.17" }
 $sanObj = New-Object -ComObject X509Enrollment.CX509ExtensionAlternativeNames
 $sanObj.InitializeDecode( 1, [System.Convert]::ToBase64String( $sanExt.RawData ) )
+$san = $($sanObj.AlternativeNames[0] | Select -Property *).strValue
 
-$san = $sanObj.AlternativeNames[0].strValue
 
-
-Invoke-Expression "winrm delete winrm/config/service/certmapping?URI=*+Issuer=$($cretificate.Thumbprint)+Subject=$san"  -ErrorAction SilentlyContinue
+Invoke-Expression "winrm delete winrm/config/service/certmapping?URI=*+Issuer=$($certificate.Thumbprint)+Subject=$san"  -ErrorAction SilentlyContinue
 New-Item -Path WSMan:\localhost\ClientCertificate `
     -Subject $san `
     -URI * `
-    -Issuer $cretificate.Thumbprint `
+    -Issuer $certificate.Thumbprint `
     -Credential $credential `
     -Force
 
